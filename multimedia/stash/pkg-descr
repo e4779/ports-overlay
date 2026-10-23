@@ -1,0 +1,11 @@
+Stash is a web-based library organizer and viewer for adult media
+collections (scenes, images, galleries): metadata scraping (StashDB
+and friends), tagging, performers, preview and sprite generation.
+
+This port packages the official upstream FreeBSD binary from GitHub
+releases (asset "stash-freebsd"; the web UI is embedded in the
+binary). ffmpeg from ports handles previews/sprites/transcoding on
+the CPU -- Intel VAAPI is not available on FreeBSD (see the homelab
+docs/freebsd/03 migration plan decision).
+
+WWW: https://github.com/stashapp/stash

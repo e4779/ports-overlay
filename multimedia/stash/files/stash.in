@@ -1,0 +1,47 @@
+#!/bin/sh
+# stash — организатор adult-коллекции (нативно; экс-контейнер stash-vaapi,
+# services/stash/Dockerfile в git-истории homelab). Дистфайл — официальная
+# сборка stash-freebsd из релиза stashapp/stash. Транскод CPU (VAAPI на
+# FreeBSD нет — docs/freebsd/03). Данные: stash_home (config.yml, БД,
+# generated); медиатека — /mnt/pool/* (autofs NFS-мост bcachefsbox).
+# Запуск от root — как прочие медиа-сервисы хоста (NFS-семантика uid).
+
+# PROVIDE: stash
+# REQUIRE: sshd
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="stash"
+rcvar="stash_enable"
+start_cmd="stash_start"
+stop_cmd="stash_stop"
+
+load_rc_config "$name"
+: "${stash_enable:=NO}"
+: "${stash_home:=/var/db/stash}"
+: "${stash_port:=9999}"
+
+stash_start()
+{
+    if pgrep -f 'bin/stas[h]' >/dev/null; then
+        echo "${name}: already running"
+        return 0
+    fi
+    echo "Starting ${name}"
+    install -d "$stash_home"
+    # -P = pid демона (не ребёнка): иначе daemon -r перезапустил бы ребёнка
+    # при stop. TERM демону транслируется в TERM ребёнка.
+    /usr/sbin/daemon -r -P /var/run/stash.pid -o /var/log/stash.log \
+        </dev/null >/dev/null 2>&1 \
+        /usr/bin/env HOME="$stash_home" %%PREFIX%%/bin/stash \
+        --nobrowser --port "$stash_port" --config "$stash_home/config.yml"
+}
+
+stash_stop()
+{
+    [ -f /var/run/stash.pid ] && kill "$(cat /var/run/stash.pid)" 2>/dev/null
+    rm -f /var/run/stash.pid
+}
+
+run_rc_command "$1"
