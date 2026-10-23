@@ -1,6 +1,6 @@
 PORTNAME=	stash
 DISTVERSION=	0.31.1
-PORTREVISION=	3
+PORTREVISION=	4
 CATEGORIES=	multimedia
 MASTER_SITES=	https://github.com/stashapp/stash/releases/download/v${DISTVERSION}/
 DISTFILES=	stash-freebsd

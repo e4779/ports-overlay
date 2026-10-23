@@ -1,10 +1,10 @@
 #!/bin/sh
-# stash — организатор adult-коллекции (нативно; экс-контейнер stash-vaapi,
-# services/stash/Dockerfile в git-истории homelab). Дистфайл — официальная
-# сборка stash-freebsd из релиза stashapp/stash. Транскод CPU (VAAPI на
-# FreeBSD нет — docs/freebsd/03). Данные: stash_home (config.yml, БД,
-# generated); медиатека — /mnt/pool/* (autofs NFS-мост bcachefsbox).
-# Запуск от root — как прочие медиа-сервисы хоста (NFS-семантика uid).
+# stash — организатор adult-коллекции (нативно; экс-контейнер stash-vaapi).
+# Транскод: stash-ffmpeg (VDENC-врапер) + /dev/dri (группа video).
+# Данные: stash_home (config.yml, БД, blobs, generated); медиатека —
+# /mnt/pool/* (autofs NFS-мост bcachefsbox).
+# История: rev3 (pgrep-гард 'stash --nobrowse[r]'); 2026-10-24: унификация —
+#   daemon -u (_p2p, группа video), svcj-ready (runbook homelab 10).
 
 # PROVIDE: stash
 # REQUIRE: sshd
@@ -14,34 +14,44 @@
 
 name="stash"
 rcvar="stash_enable"
+desc="stash media organizer (user _p2p)"
+
 start_cmd="stash_start"
 stop_cmd="stash_stop"
 
 load_rc_config "$name"
-: "${stash_enable:=NO}"
-: "${stash_home:=/var/db/stash}"
-: "${stash_port:=9999}"
+
+: ${stash_enable:=NO}
+: ${stash_user:=_p2p}
+: ${stash_home:=/var/db/stash}
+: ${stash_port:=9999}
+
+pidfile="/var/run/${name}.pid"
 
 stash_start()
 {
-    if pgrep -f 'stash --nobrowse[r]' >/dev/null; then
-        echo "${name}: already running"
+    install -d "$stash_home"
+    if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+        echo "${name}: already running (pid $(cat "$pidfile"))"
         return 0
     fi
-    echo "Starting ${name}"
-    install -d "$stash_home"
-    # -P = pid демона (не ребёнка): иначе daemon -r перезапустил бы ребёнка
-    # при stop. TERM демону транслируется в TERM ребёнка.
-    /usr/sbin/daemon -r -P /var/run/stash.pid -o /var/log/stash.log \
-        </dev/null >/dev/null 2>&1 \
+    if pgrep -f 'stash --nobrowse[r]' >/dev/null; then
+        echo "${name}: already running (pgrep match)"
+        return 0
+    fi
+    echo "Starting ${name} as ${stash_user}"
+    /usr/sbin/daemon -r -P "$pidfile" -o /var/log/stash.log -u "$stash_user" \
         /usr/bin/env HOME="$stash_home" %%PREFIX%%/bin/stash \
-        --nobrowser --port "$stash_port" --config "$stash_home/config.yml"
+        --nobrowser --port "$stash_port" --config "$stash_home/config.yml" \
+        </dev/null >/dev/null 2>&1
 }
 
 stash_stop()
 {
-    [ -f /var/run/stash.pid ] && kill "$(cat /var/run/stash.pid)" 2>/dev/null
-    rm -f /var/run/stash.pid
+    if [ -f "$pidfile" ]; then
+        kill "$(cat "$pidfile")" 2>/dev/null
+        rm -f "$pidfile"
+    fi
 }
 
 run_rc_command "$1"
