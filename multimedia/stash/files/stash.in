@@ -24,7 +24,7 @@ load_rc_config "$name"
 
 stash_start()
 {
-    if pgrep -f 'bin/stas[h]' >/dev/null; then
+    if pgrep -f 'stash --nobrowse[r]' >/dev/null; then
         echo "${name}: already running"
         return 0
     fi

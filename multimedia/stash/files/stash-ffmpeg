@@ -1,0 +1,17 @@
+#!/bin/sh
+# stash-ffmpeg — ffmpeg wrapper for stash on FreeBSD/ADL-N (runbook 10):
+# forces the VDENC (low-power) encode path for h264_vaapi, because the
+# full-quality VERC h264 encode hangs in drm-kmod on ADL-N (GuC or not).
+# HEVC paths pass through untouched. Idiom: counter-based POSIX rotation
+# (plain shift+append keeps $# constant = infinite loop — see runbook).
+n=$#
+i=0
+while [ "$i" -lt "$n" ]; do
+    arg="$1"; shift
+    set -- "$@" "$arg"
+    if [ "$arg" = "h264_vaapi" ]; then
+        set -- "$@" -low_power true
+    fi
+    i=$((i + 1))
+done
+exec /usr/local/bin/ffmpeg "$@"

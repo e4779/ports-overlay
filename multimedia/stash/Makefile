@@ -1,5 +1,6 @@
 PORTNAME=	stash
 DISTVERSION=	0.31.1
+PORTREVISION=	3
 CATEGORIES=	multimedia
 MASTER_SITES=	https://github.com/stashapp/stash/releases/download/v${DISTVERSION}/
 DISTFILES=	stash-freebsd
@@ -19,9 +20,11 @@ LICENSE=	AGPLv3
 NO_BUILD=	yes
 USE_RC_SUBR=	stash
 
-PLIST_FILES=	bin/stash
+PLIST_FILES=	bin/stash \
+		bin/stash-ffmpeg
 
 do-install:
 	${INSTALL_PROGRAM} ${DISTDIR}/${DISTFILES} ${STAGEDIR}${PREFIX}/bin/stash
+	${INSTALL_SCRIPT} ${FILESDIR}/stash-ffmpeg ${STAGEDIR}${PREFIX}/bin/stash-ffmpeg
 
 .include <bsd.port.mk>
