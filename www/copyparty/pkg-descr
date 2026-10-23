@@ -1,0 +1,7 @@
+copyparty is a portable file server with accelerated uploads and downloads,
+streaming, deduplication, write-only folders, user accounts with quotas,
+media indexing, a file manager UI, and a search UI — all in a single file
+with no mandatory dependencies.
+
+This package installs the official single-file sfx release, which bundles
+the pure-python dependencies; only a Python 3 interpreter is required.
