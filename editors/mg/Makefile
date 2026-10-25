@@ -1,5 +1,6 @@
 PORTNAME=	mg
 DISTVERSION=	4.2
+PORTREVISION=	1
 PORTEPOCH=	2
 CATEGORIES=	editors
 MASTER_SITES=	https://github.com/troglobit/mg/releases/download/v${DISTVERSION}/
@@ -14,6 +15,11 @@ PLIST_FILES=	bin/mg \
 		share/doc/mg/ChangeLog.md \
 		share/doc/mg/README.md \
 		share/doc/mg/UNLICENSE \
+		share/doc/mg/tutorial.md \
 		share/man/man1/mg.1.gz
+
+# C-h t ищет туториал по DOCDIR/tutorial.md; апстрим его не инсталлирует
+post-install:
+	${INSTALL_DATA} ${WRKSRC}/doc/tutorial.md ${STAGEDIR}${DOCSDIR}/tutorial.md
 
 .include <bsd.port.mk>
