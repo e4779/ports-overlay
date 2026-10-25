@@ -1,0 +1,16 @@
+Mg is a Micro (GNU) Emacs: small, fast, portable Emacs-like editor,
+public domain, created 1987 from MicroEMACS v30.
+
+This is the troglobit fork, tracking OpenBSD mg upstream and adding new
+usability features: UTF-8 (multibyte type/display/edit, Unicode 17),
+syntax highlighting with file modes (c, cmake, conf, diff, git-commit,
+markdown, python, shell-script, yaml...), quick help C-h q with a
+built-in tutorial (C-h t), M-; comment-dwim, line numbers, buffer
+cycling C-x Left/Right, ido-style prompts, dired.
+
+Packaged as mg-troglobit to live beside the stock editors/mg snapshots:
+same binary name (bin/mg), declared CONFLICTS_INSTALL.  Ships the full
+doc payload: tutorial.md (found by C-h t), Markus Kuhn's utf8.txt
+sample as a rendering testbench, and the upstream .mg example config at
+share/examples/mg/dot-mg.
+WWW: https://github.com/troglobit/mg

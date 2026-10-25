@@ -8,7 +8,7 @@ Poudriere-оверлей домашнего сервера hlab (FreeBSD 15.1): 
 net/microsocks    SOCKS-прокси с патчем v4-only (upstream слушает v6)
 www/copyparty     файлопомойка, версии свежее дерева портов
 multimedia/stash  медиа-органайзер; официальный freebsd-бинарь из релиза
-editors/mg        мини-эмакс: форк troglobit v4.2 (UTF-8, подсветка, C-h q)
+editors/mg-troglobit  мини-эмакс: форк troglobit v4.2 (UTF-8, подсветка, туториал, пример конфига)
 ```
 
 Использование (на хосте):
