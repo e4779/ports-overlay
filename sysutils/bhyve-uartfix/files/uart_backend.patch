@@ -1,0 +1,114 @@
+--- uart_backend.c
++++ uart_backend.c
+@@ -39,6 +39,7 @@
+ #include <assert.h>
+ #include <capsicum_helpers.h>
+ #include <err.h>
++#include <errno.h>
+ #include <netdb.h>
+ #include <pthread.h>
+ #include <stdbool.h>
+@@ -73,6 +74,7 @@ struct uart_softc {
+ 	struct ttyfd	tty;
+ 	struct fifo	rxfifo;
+ 	struct mevent	*mev;
++	bool		input_closed;
+ 	pthread_mutex_t mtx;
+ };
+ 
+@@ -86,6 +88,7 @@ static bool uart_stdio;		/* stdio in use for i/o */
+ static struct termios tio_stdio_orig;
+ 
+ static void uart_tcp_disconnect(struct uart_softc *);
++static void uart_read_hup(struct uart_softc *);
+ 
+ static void
+ ttyclose(void)
+@@ -150,7 +153,7 @@ uart_rxfifo_getchar(struct uart_softc *sc)
+ 		fifo->rindex = (fifo->rindex + 1) % fifo->size;
+ 		fifo->num--;
+ 		if (wasfull) {
+-			if (sc->tty.opened) {
++			if (sc->tty.opened && !sc->input_closed) {
+ 				error = mevent_enable(sc->mev);
+ 				assert(error == 0);
+ 			}
+@@ -179,7 +182,7 @@ rxfifo_putchar(struct uart_softc *sc, uint8_t ch)
+ 		fifo->windex = (fifo->windex + 1) % fifo->size;
+ 		fifo->num++;
+ 		if (!rxfifo_available(sc)) {
+-			if (sc->tty.opened) {
++			if (sc->tty.opened && !sc->input_closed) {
+ 				/*
+ 				 * Disable mevent callback if the FIFO is full.
+ 				 */
+@@ -192,6 +195,29 @@ rxfifo_putchar(struct uart_softc *sc, uint8_t ch)
+ 		return (-1);
+ }
+ 
++static void
++uart_read_hup(struct uart_softc *sc)
++{
++
++	/*
++	 * The peer delivering characters to the read side has gone away
++	 * (EOF on a pipe or fifo, hangup on a tty).  Unlike the TCP socket
++	 * backend there is no way to re-establish the connection, so disarm
++	 * the read event and stop polling the descriptor: kqueue reports a
++	 * descriptor at EOF as permanently readable and would otherwise
++	 * spin the mevent thread.  Console output is unaffected.
++	 */
++	if (sc->input_closed)
++		return;
++	if (sc->mev != NULL) {
++		mevent_delete(sc->mev);
++		sc->mev = NULL;
++	}
++	sc->input_closed = true;
++	warnx("uart: console input disconnected; "
++	    "input disabled until the VM is restarted");
++}
++
+ void
+ uart_rxfifo_drain(struct uart_softc *sc, bool loopback)
+ {
+@@ -199,15 +225,27 @@ uart_rxfifo_drain(struct uart_softc *sc, bool loopback)
+ 	int len;
+ 
+ 	if (loopback) {
+-		if (ttyread(&sc->tty, &ch) == 0 && sc->tty.is_socket)
+-			uart_tcp_disconnect(sc);
++		len = ttyread(&sc->tty, &ch);
++		if (len == 0) {
++			if (sc->tty.is_socket)
++				uart_tcp_disconnect(sc);
++			else
++				uart_read_hup(sc);
++		}
+ 	} else {
+ 		while (rxfifo_available(sc)) {
+ 			len = ttyread(&sc->tty, &ch);
+ 			if (len <= 0) {
+-				/* read returning 0 means disconnected. */
++				/*
++				 * read returning 0 means disconnected.
++				 * A socket can be reconnected; anything
++				 * else has lost its peer for good.
++				 */
+ 				if (len == 0 && sc->tty.is_socket)
+ 					uart_tcp_disconnect(sc);
++				else if (!sc->tty.is_socket &&
++				    (len == 0 || errno == EIO))
++					uart_read_hup(sc);
+ 				break;
+ 			}
+ 
+@@ -244,7 +282,7 @@ uart_rxfifo_reset(struct uart_softc *sc, int size)
+ 	bzero(fifo, sizeof(struct fifo));
+ 	fifo->size = size;
+ 
+-	if (sc->tty.opened) {
++	if (sc->tty.opened && !sc->input_closed) {
+ 		/*
+ 		 * Flush any unread input from the tty buffer.
+ 		 */

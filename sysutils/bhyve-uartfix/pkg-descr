@@ -1,0 +1,4 @@
+bhyve built from the base system source with the UART console EOF spin fix
+(FreeBSD PR 300475): read() == 0 / EIO on non-socket console backends
+disarms the mevent reader instead of spinning. Installed as
+libexec/bhyve-uartfix; used by services/bcachefsbox run-hlab.sh.
