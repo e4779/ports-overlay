@@ -1,18 +1,20 @@
 # hlab overlay: llama.cpp master snapshot 2cbca38 (2026-11-03)
 # WHY: quarterly pkg b10975 lacks arch support for nemotron-3.5-bolt (74b),
 # deepseek-v4.1 and --models-memory-margin. This port bundles ggml from the
-# same master tree (LLAMA_USE_SYSTEM_GGML off) — proven by the 121.7 t/s
-# bolt-74b benchmark. Delete this overlay port when the official port bumps
-# past the needed arch fixes; pkg upgrade will then prefer the official one
-# (any future version > 10975.* wins).
+# same master tree (LLAMA_USE_SYSTEM_GGML off) WITH GGML_VULKAN=ON (the
+# bundled ggml defaults Vulkan OFF — without this flag the binary has no
+# GPU backend at all). FreeBSD Vulkan build needs the F_DUPFD shim (files/).
+# Delete this overlay port when the official port bumps past the needed
+# arch fixes; pkg upgrade will then prefer the official one (any future
+# version > 10975.* wins).
 
 PORTNAME=	llama-cpp
-PORTVERSION=	10975.20261103
+PORTVERSION=	10975.20261103.2
 CATEGORIES=	misc # machine-learning
 MASTER_SITES=	https://huggingface.co/buckets/ggml-org/llama-ui/resolve/${UI_ASSETS_TAG}/:ui_assets
 DISTFILES=	dist.tar.gz:ui_assets \
 		dist.tar.gz.sha256:ui_assets
-DIST_SUBDIR=	${PORTNAME}-${PORTVERSION}
+DIST_SUBDIR=	llama-cpp-10975.20261103
 EXTRACT_ONLY=	${DISTNAME}${EXTRACT_SUFX}
 
 # hlab local override (upstream MAINTAINER yuri@FreeBSD.org)
@@ -23,7 +25,12 @@ WWW=		https://github.com/ggml-org/llama.cpp
 LICENSE=	MIT
 LICENSE_FILE=	${WRKSRC}/LICENSE
 
-# bundled ggml from the same master tree (no misc/ggml dependency)
+# bundled ggml from the same master tree + its Vulkan build requirements
+# (mirrors misc/ggml's VULKAN option deps)
+BUILD_DEPENDS=	spirv-headers>0:graphics/spirv-headers \
+		glslc:graphics/shaderc \
+		vulkan-headers>0:graphics/vulkan-headers
+LIB_DEPENDS=	libvulkan.so:graphics/vulkan-loader
 # NOTE: conflicts with installed misc/ggml files — remove ggml before install
 CONFLICTS_INSTALL=	ggml-0.*
 
@@ -43,7 +50,8 @@ SHEBANG_GLOB=	*.py
 
 UI_ASSETS_TAG=	b10970
 
-CMAKE_ON=	BUILD_SHARED_LIBS \
+CMAKE_ON=	GGML_VULKAN=ON \
+		BUILD_SHARED_LIBS \
 		BUILD_STATIC_LIBS
 CMAKE_OFF=	GGML_NATIVE \
 		FREEBSD_ALLOW_ADVANCED_CPU_FEATURES \
