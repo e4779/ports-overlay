@@ -2,9 +2,6 @@
 
 #
 # PROVIDE: llama_server
-# FUNCTIONAL ANNOTATION (rcorder) — not a dead comment.
-# Removing/splitting the conditions below starts this service BEFORE the
-# GPUs answer NVML and wedges the NVIDIA driver until a module reload
 # REQUIRE: sshd nvidia_init
 # KEYWORD: shutdown
 # FUNCTIONAL ANNOTATION (rcorder) -- not a dead comment.
