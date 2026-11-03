@@ -9,7 +9,7 @@
 # version > 10975.* wins).
 
 PORTNAME=	llama-cpp
-PORTVERSION=	10975.20261103.2
+PORTVERSION=	10975.20261103.3
 CATEGORIES=	misc # machine-learning
 MASTER_SITES=	https://huggingface.co/buckets/ggml-org/llama-ui/resolve/${UI_ASSETS_TAG}/:ui_assets
 DISTFILES=	dist.tar.gz:ui_assets \
@@ -31,8 +31,6 @@ BUILD_DEPENDS=	spirv-headers>0:graphics/spirv-headers \
 		glslc:graphics/shaderc \
 		vulkan-headers>0:graphics/vulkan-headers
 LIB_DEPENDS=	libvulkan.so:graphics/vulkan-loader
-# NOTE: conflicts with installed misc/ggml files — remove ggml before install
-CONFLICTS_INSTALL=	ggml-0.*
 
 USES=		cmake:testing compiler:c++11-lang python:run shebangfix ssl
 
