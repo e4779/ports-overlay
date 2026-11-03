@@ -5,7 +5,7 @@ CATEGORIES=	multimedia
 USE_GITHUB=	yes
 GH_ACCOUNT=	e4779
 GH_PROJECT=	stash
-GH_TAGNAME=	v0.32.0-hlab.1
+GH_TAGNAME=	v0.32.0-hlab.2
 
 MAINTAINER=	e4779@4779.ru
 COMMENT=	Web-based library organizer for adult media (hlab fork: hw-accelerated previews)
@@ -29,7 +29,7 @@ USE_RC_SUBR=	stash
 # GH-tarball нет).
 do-build:
 	cd ${WRKSRC} && ${SETENV} ${MAKE_ENV} GOTOOLCHAIN=local GOFLAGS=-mod=vendor \
-		STASH_VERSION=v0.32.0-hlab.1 GITHASH=da9b4960 BUILD_DATE=2026-11-03T21:50:00+07:00 \
+		STASH_VERSION=v0.32.0-hlab.2 GITHASH=2d1dada8 BUILD_DATE=2026-11-03T21:50:00+07:00 \
 		gmake stash
 
 do-install:
