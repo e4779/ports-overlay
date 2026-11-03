@@ -1,30 +1,38 @@
 PORTNAME=	stash
-DISTVERSION=	0.31.1
-PORTREVISION=	4
+DISTVERSION=	0.32.0
+PORTREVISION=	0
 CATEGORIES=	multimedia
-MASTER_SITES=	https://github.com/stashapp/stash/releases/download/v${DISTVERSION}/
-DISTFILES=	stash-freebsd
-EXTRACT_ONLY=
+USE_GITHUB=	yes
+GH_ACCOUNT=	e4779
+GH_PROJECT=	stash
+GH_TAGNAME=	v0.32.0-hlab.1
 
 MAINTAINER=	e4779@4779.ru
-COMMENT=	Web-based library organizer and viewer for adult media collections
-WWW=		https://github.com/stashapp/stash
+COMMENT=	Web-based library organizer for adult media (hlab fork: hw-accelerated previews)
+WWW=		https://github.com/e4779/stash
 
 LICENSE=	AGPLv3
 
-# ffmpeg нужен для превью/спрайтов/транскода, но НЕ объявляем RUN_DEPENDS:
-# в poudriere-наборе фабрики его нет, а собирать его граф из исходников
-# на N100 — часы. ffmpeg приезжает из официального бинарного репо
-# (уже установлен на хосте); pkg резолвит его при установке stash.
+BUILD_DEPENDS=	go:lang/go
+USES=		gmake
 
-NO_BUILD=	yes
+# ffmpeg нужен в рантайме (превью/спрайты/транскод), но RUN_DEPENDS не
+# объявляем: poudriere-набор его не собирает (часы), приезжает из
+# официального бинарного репо — рационал в runbook 10 (2026-10-23).
+
+PLIST_FILES=	bin/stash
 USE_RC_SUBR=	stash
 
-PLIST_FILES=	bin/stash \
-		bin/stash-ffmpeg
+# Ветка hlab-build несёт vendor/ и собранный ui/v2.5/build, поэтому сборка
+# офлайн: go build -mod=vendor, без node/pnpm. STASH_VERSION/GITHASH/
+# BUILD_DATE — оверрайды build-info (иначе gmake зовёт git, которого в
+# GH-tarball нет).
+do-build:
+	cd ${WRKSRC} && ${SETENV} ${MAKE_ENV} GOTOOLCHAIN=local GOFLAGS=-mod=vendor \
+		STASH_VERSION=v0.32.0-hlab.1 GITHASH=da9b4960 BUILD_DATE=2026-11-03T21:50:00+07:00 \
+		gmake stash
 
 do-install:
-	${INSTALL_PROGRAM} ${DISTDIR}/${DISTFILES} ${STAGEDIR}${PREFIX}/bin/stash
-	${INSTALL_SCRIPT} ${FILESDIR}/stash-ffmpeg ${STAGEDIR}${PREFIX}/bin/stash-ffmpeg
+	${INSTALL_PROGRAM} ${WRKSRC}/stash ${STAGEDIR}${PREFIX}/bin/stash
 
 .include <bsd.port.mk>
