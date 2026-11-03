@@ -2,7 +2,7 @@
 
 #
 # PROVIDE: llama_server
-# REQUIRE: LOGIN
+# REQUIRE: sshd nvidia_init
 # KEYWORD: shutdown
 
 # Add the following lines to /etc/rc.conf to enable llama_server
