@@ -7,7 +7,7 @@
 #   daemon -u (_p2p, группа video), svcj-ready (runbook homelab 10).
 
 # PROVIDE: stash
-# REQUIRE: sshd
+# REQUIRE: poolmount sshd
 # KEYWORD: shutdown
 
 . /etc/rc.subr
