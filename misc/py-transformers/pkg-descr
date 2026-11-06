@@ -1,0 +1,7 @@
+Transformers provides APIs to easily download and train state-of-the-art
+pretrained models. hlab overlay override: version pinned to 4.57.6
+(AudioMuse-AI upstream pin) with the upstream runtime dependency set —
+NO pytorch/torchvision/torchaudio/sagemaker stack that the stock port
+wires in. Retire when the stock port drops the torch dependencies.
+
+WWW: https://github.com/huggingface/transformers

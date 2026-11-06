@@ -1,0 +1,99 @@
+#!/bin/sh
+# audiomuse_worker — taskqueue roles (mirrors upstream supervisord.conf:
+# queue-worker-default, queue-worker-high, queue-maintenance). Managed as
+# one service with per-role pidfiles; python -m via PYTHONPATH (no chdir needed).
+
+# REQUIRE: sshd postgresql audiomuse
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name=audiomuse_worker
+rcvar=audiomuse_worker_enable
+
+load_rc_config ${name}
+
+: ${audiomuse_worker_enable:=NO}
+: ${audiomuse_worker_svcj:=YES}
+: ${audiomuse_worker_env:=%%PREFIX%%/etc/audiomuse.env}
+: ${audiomuse_worker_home:=%%PREFIX%%/share/audiomuse-ai}
+: ${audiomuse_worker_user:=_audiomuse}
+: ${audiomuse_worker_group:=_audiomuse}
+
+roles="default high maintenance"
+
+start_cmd=amw_start
+stop_cmd=amw_stop
+status_cmd=amw_status
+
+_env_setup()
+{
+	if [ -f "${audiomuse_worker_env}" ]; then
+		set -a
+		. "${audiomuse_worker_env}"
+		set +a
+	fi
+	export PYTHONPATH="${audiomuse_worker_home}"
+	export PYTHONUNBUFFERED=1
+}
+
+_dirs_setup()
+{
+	for _d in /var/run/audiomuse /var/log/audiomuse /var/db/audiomuse /var/db/audiomuse/temp_audio /var/db/audiomuse/model /var/db/audiomuse/numba; do
+		[ -d "${_d}" ] || install -d -o ${audiomuse_worker_user} -g ${audiomuse_worker_group} "${_d}"
+	done
+}
+
+_amw_cmd()
+{
+	case "$1" in
+	default)	echo "%%PYTHON_CMD%% -u -m taskqueue.worker --queue default" ;;
+	high)		echo "%%PYTHON_CMD%% -u -m taskqueue.worker --queue high" ;;
+	maintenance)	echo "%%PYTHON_CMD%% -u -m taskqueue.maintenance" ;;
+	esac
+}
+
+amw_start()
+{
+	_env_setup
+	_dirs_setup
+	for _r in ${roles}; do
+		_p=/var/run/audiomuse/worker-${_r}.pid
+		if [ -f "${_p}" ] && kill -0 "$(cat "${_p}")" 2>/dev/null; then
+			echo "${name}: worker-${_r} already running (pid $(cat "${_p}"))"
+			continue
+		fi
+		echo "Starting ${name}: worker-${_r}"
+		/usr/sbin/daemon -r -o /var/log/audiomuse/worker-${_r}.log -p "${_p}" $(_amw_cmd "${_r}")
+	done
+}
+
+amw_stop()
+{
+	for _r in ${roles}; do
+		_p=/var/run/audiomuse/worker-${_r}.pid
+		if [ -f "${_p}" ]; then
+			_pid=$(cat "${_p}")
+			echo "Stopping ${name}: worker-${_r} (pid ${_pid})"
+			kill "${_pid}" 2>/dev/null
+			rm -f "${_p}"
+		fi
+	done
+}
+
+amw_status()
+{
+	_rc=0
+	for _r in ${roles}; do
+		_p=/var/run/audiomuse/worker-${_r}.pid
+		if [ -f "${_p}" ] && kill -0 "$(cat "${_p}")" 2>/dev/null; then
+			echo "${name} worker-${_r} is running (pid $(cat "${_p}"))."
+		else
+			echo "${name} worker-${_r} is not running."
+		_rc=3
+		fi
+	done
+	return ${_rc}
+}
+
+run_rc_command "$1"

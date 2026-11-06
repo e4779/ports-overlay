@@ -1,0 +1,5 @@
+wn is a WordNet interface library for Python, supporting multiple
+lexicons via LMF. Runtime dependency of audio/audiomuse-ai (mood
+vocabulary synonyms).
+
+WWW: https://github.com/goodmami/wn

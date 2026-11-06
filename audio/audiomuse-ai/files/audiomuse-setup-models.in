@@ -1,0 +1,26 @@
+#!/bin/sh
+# audiomuse-setup-models — fetch the pinned model set into /var/db/audiomuse/model.
+# Wraps upstream scripts/standalone/assemble_model.py (do not reimplement;
+# release pins: MODEL_RELEASE=v5.0.0-model DCLAP_RELEASE=v1 SAE_RELEASE=v1).
+# Requires: devel/gh (authenticated gh CLI). Run via doas.
+set -e
+
+APP_HOME=%%PREFIX%%/share/audiomuse-ai
+STATE=/var/db/audiomuse
+
+command -v gh >/dev/null 2>&1 || { echo "ERROR: gh CLI not found (pkg install gh)" >&2; exit 1; }
+
+mkdir -p "${STATE}"
+cd "${STATE}"
+
+export MODEL_RELEASE=v5.0.0-model
+export DCLAP_RELEASE=v1
+export SAE_RELEASE=v1
+export GITHUB_REPOSITORY=NeptuneHub/AudioMuse-AI
+
+echo "==> downloading model release assets into ${STATE}/model"
+%%PYTHON_CMD%% "${APP_HOME}/scripts/standalone/assemble_model.py"
+%%PYTHON_CMD%% "${APP_HOME}/scripts/standalone/assemble_model.py" --verify
+
+chown -R _audiomuse:_audiomuse "${STATE}"
+echo "==> models ready: ${STATE}/model"

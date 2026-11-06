@@ -1,0 +1,4 @@
+Language detection library ported from Google's language-detection.
+Runtime dependency of audio/audiomuse-ai (lyrics transcription).
+
+WWW: https://github.com/Mimino666/langdetect

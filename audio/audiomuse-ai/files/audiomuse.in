@@ -1,0 +1,45 @@
+#!/bin/sh
+# audiomuse — Flask role via gunicorn (mirrors upstream supervisord.conf [program:flask]).
+# Home: docs/freebsd/26-audiomuse-ai.org
+
+# REQUIRE: sshd postgresql
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name=audiomuse
+rcvar=audiomuse_enable
+
+load_rc_config ${name}
+
+: ${audiomuse_enable:=NO}
+: ${audiomuse_svcj:=YES}
+: ${audiomuse_env:=%%PREFIX%%/etc/audiomuse.env}
+: ${audiomuse_home:=%%PREFIX%%/share/audiomuse-ai}
+: ${audiomuse_user:=_audiomuse}
+: ${audiomuse_group:=_audiomuse}
+: ${audiomuse_bind:=127.0.0.1}
+: ${audiomuse_port:=8000}
+: ${audiomuse_workers:=1}
+: ${audiomuse_threads:=4}
+
+pidfile=/var/run/audiomuse/flask.pid
+procname=/usr/local/bin/gunicorn
+command=/usr/sbin/daemon
+command_args="-r -o /var/log/audiomuse/flask.log -p ${pidfile} /usr/local/bin/gunicorn --chdir ${audiomuse_home} --bind ${audiomuse_bind}:${audiomuse_port} --workers ${audiomuse_workers} --threads ${audiomuse_threads} --worker-class gthread --keep-alive 5 --timeout 300 --capture-output app:app"
+
+start_precmd=audiomuse_prestart
+
+audiomuse_prestart()
+{
+	for _d in /var/run/audiomuse /var/log/audiomuse /var/db/audiomuse /var/db/audiomuse/temp_audio /var/db/audiomuse/model; do
+		[ -d "${_d}" ] || install -d -o ${audiomuse_user} -g ${audiomuse_group} "${_d}"
+	done
+	if [ -f "${audiomuse_env}" ]; then
+		set -a
+		. "${audiomuse_env}"
+		set +a
+	fi
+}
+
+run_rc_command "$1"

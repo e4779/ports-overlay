@@ -1,0 +1,9 @@
+AudioMuse-AI performs local sonic analysis of a music library
+(embeddings via musicnn/CLAP ONNX models) and generates smart
+playlists for Navidrome and other Subsonic servers, without external
+services. This package is the native CPU baseline: Flask UI plus
+taskqueue workers over packaged Python dependencies; GPU acceleration
+is provided by the podman/linuxulator worker (runbook 26 in the homelab
+repo), not this package.
+
+WWW: https://github.com/NeptuneHub/AudioMuse-AI

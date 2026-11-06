@@ -1,0 +1,5 @@
+NumKong is a portable mixed-precision math and linear-algebra library
+with 2000+ SIMD kernels for x86 and ARM, from the StringX family.
+Runtime dependency of audio/audiomuse-ai (IVF quantization).
+
+WWW: https://github.com/ashvardanian/NumKong
