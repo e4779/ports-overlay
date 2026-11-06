@@ -3,6 +3,7 @@
 # queue-worker-default, queue-worker-high, queue-maintenance). Managed as
 # one service with per-role pidfiles; python -m via PYTHONPATH (no chdir needed).
 
+# PROVIDE: audiomuse_worker
 # REQUIRE: sshd postgresql audiomuse
 # KEYWORD: shutdown
 

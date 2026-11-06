@@ -2,6 +2,7 @@
 # audiomuse — Flask role via gunicorn (mirrors upstream supervisord.conf [program:flask]).
 # Home: docs/freebsd/26-audiomuse-ai.org
 
+# PROVIDE: audiomuse
 # REQUIRE: sshd postgresql
 # KEYWORD: shutdown
 
