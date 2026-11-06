@@ -30,6 +30,7 @@ GH_PROJECT=	AudioMuse-AI
 
 USE_RC_SUBR=	audiomuse audiomuse_worker
 SUB_FILES=	audiomuse-setup-models
+SUB_LIST+=	PYTHON_CMD=${PYTHON_CMD}
 
 NO_ARCH=	yes
 NO_BUILD=	yes

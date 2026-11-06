@@ -8,10 +8,10 @@ Quickstart (details: docs/freebsd/26-audiomuse-ai.org in the homelab repo):
 1. PostgreSQL: create role+db (or point to an existing cluster):
    psql -c "CREATE ROLE audiomuse LOGIN PASSWORD '...';" \
        -c 'CREATE DATABASE audiomuse OWNER audiomuse;'
-2. Edit %%PREFIX%%/etc/audiomuse.env (cp from audiomuse.env.sample):
+2. Edit /usr/local/etc/audiomuse.env (cp from audiomuse.env.sample):
    set POSTGRES_PASSWORD and Navidrome credentials.
 3. Fetch the pinned model set (~5 GB, needs devel/gh):
-   doas %%PREFIX%%/bin/audiomuse-setup-models
+   doas /usr/local/bin/audiomuse-setup-models
 4. sysrc audiomuse_enable=YES && service audiomuse start
    sysrc audiomuse_worker_enable=YES && service audiomuse_worker start
 5. UI: http://127.0.0.1:8000 (setup wizard on first visit).

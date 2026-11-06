@@ -223,4 +223,6 @@ share/audiomuse-ai/templates/sonic_fingerprint.html
 share/audiomuse-ai/templates/users.html
 share/audiomuse-ai/tls_listener.py
 share/audiomuse-ai/tz_helper.py
+bin/audiomuse-setup-models
+@sample etc/audiomuse.env.sample
 @dir share/audiomuse-ai

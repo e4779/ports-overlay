@@ -28,9 +28,9 @@ status_cmd=amw_status
 
 _env_setup()
 {
-	if [ -f "${audiomuse_worker_env}" ]; then
+	if [ -f "${audiomuse_worker_envfile}" ]; then
 		set -a
-		. "${audiomuse_worker_env}"
+		. "${audiomuse_worker_envfile}"
 		set +a
 	fi
 	export PYTHONPATH="${audiomuse_worker_home}"
@@ -64,7 +64,7 @@ amw_start()
 			continue
 		fi
 		echo "Starting ${name}: worker-${_r}"
-		/usr/sbin/daemon -r -o /var/log/audiomuse/worker-${_r}.log -p "${_p}" $(_amw_cmd "${_r}")
+		/usr/sbin/daemon -u ${audiomuse_worker_user} -o /var/log/audiomuse/worker-${_r}.log -p "${_p}" $(_amw_cmd "${_r}")
 	done
 }
 
