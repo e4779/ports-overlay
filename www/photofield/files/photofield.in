@@ -1,0 +1,55 @@
+#!/bin/sh
+# photofield — read-only photo gallery (EXIF-timeline), single Go binary.
+# Data dir (configuration.yaml + cache): /srv/homelab/state/photofield.
+# 2026-11-09: native build (master d7374a9, CGO=0) replacing debian docker
+#   era; port 8085; NO auth (upstream has none) — LAN read-only exposure.
+# Proposal: docs/freebsd/proposals/2026-11-09-photofield.md
+
+# PROVIDE: photofield
+# REQUIRE: sshd
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="photofield"
+rcvar="photofield_enable"
+desc="photofield photo gallery (user _p2p)"
+
+start_cmd="photofield_start"
+stop_cmd="photofield_stop"
+
+load_rc_config "$name"
+
+: ${photofield_enable:=NO}
+: ${photofield_user:=_p2p}
+: ${photofield_data_dir:="/srv/homelab/state/photofield"}
+: ${photofield_address:=":8085"}
+: ${photofield_args:=}
+
+pidfile="/var/run/${name}.pid"
+
+photofield_start()
+{
+    if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+        echo "${name}: already running (pid $(cat "$pidfile"))"
+        return 0
+    fi
+    if pgrep -f 'photofiel[d]' >/dev/null; then
+        echo "${name}: already running (pgrep match)"
+        return 0
+    fi
+    echo "Starting ${name} as ${photofield_user} on ${photofield_address}"
+    PHOTOFIELD_DATA_DIR="$photofield_data_dir" \
+    PHOTOFIELD_ADDRESS="$photofield_address" \
+    /usr/sbin/daemon -r -P "$pidfile" -o /var/log/photofield.log -u "$photofield_user" /usr/local/bin/photofield $photofield_args </dev/null >/dev/null 2>&1
+}
+
+photofield_stop()
+{
+    if [ -f "$pidfile" ]; then
+        kill "$(cat "$pidfile")" 2>/dev/null
+        rm -f "$pidfile"
+    fi
+}
+
+run_rc_command "$1"

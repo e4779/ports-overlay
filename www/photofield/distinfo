@@ -1,0 +1,7 @@
+TIMESTAMP = 1794146442
+SHA256 (go/www_photofield/SmilyOrg-photofield-0.9.4.g20261108-d7374a9_GH0/go.mod) = 356759fac30855365608a609a01b28e1a06c8921bf6573c8be43dcd38002b7ed
+SIZE (go/www_photofield/SmilyOrg-photofield-0.9.4.g20261108-d7374a9_GH0/go.mod) = 4765
+SHA256 (go/www_photofield/SmilyOrg-photofield-0.9.4.g20261108-d7374a9_GH0/SmilyOrg-photofield-0.9.4.g20261108-d7374a9_GH0.tar.gz) = f6bc4f36f5d941559b38b426cad47ce347d483d1c17d86e6a30e24c9ac1e504d
+SIZE (go/www_photofield/SmilyOrg-photofield-0.9.4.g20261108-d7374a9_GH0/SmilyOrg-photofield-0.9.4.g20261108-d7374a9_GH0.tar.gz) = 8500045
+SHA256 (go/www_photofield/SmilyOrg-photofield-0.9.4.g20261108-d7374a9_GH0/photofield-ui-deps-0.9.4.g20261108.tar.gz) = 8af9052ad2fb53ca01ac77fd48a4ad95546e557cf97e19618ae7050f21c23c5a
+SIZE (go/www_photofield/SmilyOrg-photofield-0.9.4.g20261108-d7374a9_GH0/photofield-ui-deps-0.9.4.g20261108.tar.gz) = 50931987

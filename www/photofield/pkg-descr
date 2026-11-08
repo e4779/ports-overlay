@@ -1,0 +1,7 @@
+Photofield is a fast, self-hosted, single-binary photo gallery with a
+focus on speed: EXIF-timeline layout (Google-Photos-like feed), no ML,
+read-only over an existing photo tree.
+
+hlab build notes: UI (npm/vite) built at port build time and embedded
+via -tags embedui; go deps vendored by the framework from the module
+cache (offline build). Runs as user _p2p on :8085, no auth (LAN-only).
