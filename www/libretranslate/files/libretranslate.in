@@ -20,12 +20,14 @@ load_rc_config ${name}
 : ${libretranslate_bind:=127.0.0.1}
 : ${libretranslate_port:=5000}
 : ${libretranslate_datadir:=/var/db/libretranslate}
-: ${libretranslate_flags:=}
+# NB: ${name}_flags is RESERVED — rc.subr puts it right after command= (daemon(8)),
+# which chokes on app flags. Use libretranslate_extra_flags for app args.
+: ${libretranslate_extra_flags:=--load-only en,ru}
 
 pidfile=/var/run/libretranslate/libretranslate.pid
 command=/usr/sbin/daemon
 # HOME pins argos models to datadir/.local/share/argos-translate
-command_args="-o /var/log/libretranslate/libretranslate.log -p ${pidfile} env HOME=${libretranslate_datadir} %%PREFIX%%/bin/libretranslate --host ${libretranslate_bind} --port ${libretranslate_port} ${libretranslate_flags}"
+command_args="-o /var/log/libretranslate/libretranslate.log -p ${pidfile} env HOME=${libretranslate_datadir} %%PREFIX%%/bin/libretranslate --host ${libretranslate_bind} --port ${libretranslate_port} ${libretranslate_extra_flags}"
 
 start_precmd=libretranslate_prestart
 
