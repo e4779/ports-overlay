@@ -9,7 +9,7 @@
 
 PORTNAME=	libretranslate
 DISTVERSION=	1.9.6
-PORTREVISION=	1
+PORTREVISION=	5
 CATEGORIES=	www python # machine-learning
 MASTER_SITES=	PYPI
 

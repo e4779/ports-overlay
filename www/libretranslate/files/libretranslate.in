@@ -24,10 +24,21 @@ load_rc_config ${name}
 # which chokes on app flags. Use libretranslate_extra_flags for app args.
 : ${libretranslate_extra_flags:=--load-only en,ru}
 
+# Zen5 OpenBLAS workaround exported here: an env(1)-prefix inside
+# command_args does NOT survive the svcj start path (scar 2026-11-10,
+# runbook 28) — a plain export is inherited by the whole process tree.
+export OPENBLAS_CORETYPE=Haswell
+
 pidfile=/var/run/libretranslate/libretranslate.pid
 command=/usr/sbin/daemon
-# HOME pins argos models to datadir/.local/share/argos-translate
-command_args="-o /var/log/libretranslate/libretranslate.log -p ${pidfile} env HOME=${libretranslate_datadir} %%PREFIX%%/bin/libretranslate --host ${libretranslate_bind} --port ${libretranslate_port} ${libretranslate_extra_flags}"
+# HOME pins argos models to datadir/.local/share/argos-translate.
+# OPENBLAS_CORETYPE=Haswell: FreeBSD OpenBLAS picks a broken kernel for
+# Zen 5 (9700X) -> SIGSEGV in ct2 on long inputs; AVX2 kernels are fine
+# (scar 2026-11-10, runbook 28).
+# -P (supervisor pidfile), NOT -p: with daemon -r, stopping the child alone
+# makes the supervisor respawn it forever; service stop must kill the
+# supervisor. pidfile tracks the supervisor (run_rc_command kill works).
+command_args="-r -R 5 -o /var/log/libretranslate/libretranslate.log -P ${pidfile} env HOME=${libretranslate_datadir} OPENBLAS_CORETYPE=Haswell %%PREFIX%%/bin/libretranslate --host ${libretranslate_bind} --port ${libretranslate_port} ${libretranslate_extra_flags}"
 
 start_precmd=libretranslate_prestart
 
