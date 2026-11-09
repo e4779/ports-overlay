@@ -1,0 +1,4 @@
+Extract swagger specs from Flask routes. Dependency of LibreTranslate
+(hlab runbook 28).
+
+https://github.com/gangverk/flask-swagger

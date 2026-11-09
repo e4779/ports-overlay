@@ -1,0 +1,39 @@
+#!/bin/sh
+# libretranslate — self-hosted MT API for SillyTavern (runbook 28).
+# waitress server inside the `libretranslate` CLI; G5 daemon wrapper.
+
+# PROVIDE: libretranslate
+# REQUIRE: sshd
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name=libretranslate
+rcvar=libretranslate_enable
+
+load_rc_config ${name}
+
+: ${libretranslate_enable:=NO}
+: ${libretranslate_svcj:=YES}
+: ${libretranslate_user:=_libretranslate}
+: ${libretranslate_group:=_libretranslate}
+: ${libretranslate_bind:=127.0.0.1}
+: ${libretranslate_port:=5000}
+: ${libretranslate_datadir:=/var/db/libretranslate}
+: ${libretranslate_flags:=}
+
+pidfile=/var/run/libretranslate/libretranslate.pid
+command=/usr/sbin/daemon
+# HOME pins argos models to datadir/.local/share/argos-translate
+command_args="-o /var/log/libretranslate/libretranslate.log -p ${pidfile} env HOME=${libretranslate_datadir} %%PREFIX%%/bin/libretranslate --host ${libretranslate_bind} --port ${libretranslate_port} ${libretranslate_flags}"
+
+start_precmd=libretranslate_prestart
+
+libretranslate_prestart()
+{
+	for _d in /var/run/libretranslate /var/log/libretranslate /var/db/libretranslate; do
+		[ -d "${_d}" ] || install -d -o ${libretranslate_user} -g ${libretranslate_group} "${_d}"
+	done
+}
+
+run_rc_command "$1"

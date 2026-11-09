@@ -1,0 +1,5 @@
+LibreTranslate fork of Argos Translate: offline neural machine
+translation library on CTranslate2. Fork drops the heavy spacy/stanza
+dependency chain (uses minisbd) - that is why LibreTranslate pins it.
+
+https://github.com/LibreTranslate/argos-translate

@@ -1,0 +1,19 @@
+[
+{ type: install
+  message: <<EOM
+LibreTranslate installed (hlab, runbook 28).
+
+Deploy steps (host, see runbook 28 for details):
+  pw useradd -n _libretranslate -d /var/db/libretranslate -s /usr/sbin/nologin -c "LibreTranslate daemon"
+  sysrc libretranslate_enable=YES
+  sysrc libretranslate_svcj=YES libretranslate_svcj_options=net_basic
+  # first start only: fetch argos models (en<->ru ~300MB)
+  sysrc libretranslate_flags="--update-models"
+  service libretranslate start
+  sysrc libretranslate_flags=""
+
+SillyTavern (same host): Extensions -> Translation ->
+Provider LibreTranslate, URL http://127.0.0.1:5000
+EOM
+}
+]

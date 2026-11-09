@@ -1,0 +1,5 @@
+Free and Open Source Machine Translation API, fully self-hosted
+(argos-translate models, CTranslate2 CPU inference). Serves SillyTavern
+translation on hlab (runbook 28).
+
+https://libretranslate.com

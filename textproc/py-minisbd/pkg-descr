@@ -1,0 +1,4 @@
+Minimal rule-based sentence boundary detection. Dependency of
+argos-translate-lt (LibreTranslate chain, hlab runbook 28).
+
+https://pypi.org/project/minisbd/

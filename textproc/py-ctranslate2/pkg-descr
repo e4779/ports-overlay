@@ -1,0 +1,5 @@
+Python bindings for CTranslate2 (links the textproc/ctranslate2 shared
+library via CTRANSLATE2_ROOT). Part of the LibreTranslate chain (hlab
+runbook 28).
+
+https://github.com/OpenNMT/CTranslate2

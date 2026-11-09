@@ -1,0 +1,4 @@
+Swagger UI blueprint for Flask. Dependency of LibreTranslate
+(hlab runbook 28). Pinned 4.11.x: LibreTranslate pins ==4.11.1.
+
+https://github.com/hwalinga/flask-swagger-ui
