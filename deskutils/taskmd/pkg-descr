@@ -1,0 +1,8 @@
+Markdown-native task tracking CLI designed for both humans and AI coding
+assistants. Tasks live as plain .md files under tasks/ with YAML frontmatter
+-- version-controlled alongside the code. Deterministic commands with stable
+IDs and --json output, a validation gate, dependency graph, and an embedded
+web dashboard (taskmd web).
+
+Built from source for FreeBSD; upstream releases target macOS/Linux/Windows
+only, so the web dashboard is not embedded in this package.
