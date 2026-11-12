@@ -1,8 +1,13 @@
 Markdown-native task tracking CLI designed for both humans and AI coding
 assistants. Tasks live as plain .md files under tasks/ with YAML frontmatter
 -- version-controlled alongside the code. Deterministic commands with stable
-IDs and --json output, a validation gate, dependency graph, and an embedded
-web dashboard (taskmd web).
+IDs and --json output, a validation gate, dependency graph, and a web
+dashboard.
+
+Agent Skills examples (one SKILL.md per workflow: do-task, split-task,
+divide-and-conquer, import-todos, verify-task, ...) are installed under
+share/examples/taskmd/skills/ -- copy or symlink them into a project's
+.pi/skills/ to teach a coding agent the workflows.
 
 Built from source for FreeBSD; upstream releases target macOS/Linux/Windows
-only, so the web dashboard is not embedded in this package.
+only, so the optional web dashboard is not embedded in this package.

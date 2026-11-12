@@ -1,5 +1,6 @@
 PORTNAME=	taskmd
 DISTVERSION=	0.8.1
+PORTREVISION=	1
 CATEGORIES=	deskutils
 MAINTAINER=	e@4779.ru
 COMMENT=	Markdown-native task tracking CLI for agents and humans
@@ -20,17 +21,34 @@ GH_TAGNAME=	v0.8.1
 # falls back to the codeload tar.gz as "go.mod" → gzip → parse error.
 GO_MODULE=	github.com/driangle/taskmd/apps/cli@v0.8.1
 GO_MOD_DIST=	github
-GO_MOD_DIST=	github
 WRKSRC_SUBDIR=	apps/cli
 GO_TARGET=	./cmd/taskmd
+PLIST_FILES=	bin/taskmd
 # Repo root carries a go.work (multi-module dev convenience); the port builds
 # the single apps/cli module — workspace mode must not leak into the build.
 GO_ENV+=	GOWORK=off
 
-PLIST_FILES=	bin/taskmd
+OPTIONS_DEFINE=	SKILLS
+OPTIONS_DEFAULT=	SKILLS
+SKILLS_DESC=	Install Agent Skills examples (SKILL.md per workflow)
 
-# TODO: optional embedded web dashboard — upstream embeds the apps/web SPA
-# (vite build) with -tags embed_web. Needs a nodejs/pnpm prebuild stage;
-# this package ships the CLI only (taskmd web is unavailable).
+.include <bsd.port.options.mk>
+
+post-install:
+.if ${PORT_OPTIONS:MSKILLS}
+# Skills are vendored from claude-code-plugin@HEAD: the v0.8.1 tag predates
+# the plugin directory, so the source archive does not carry them.
+	${MKDIR} ${STAGEDIR}${EXAMPLESDIR}/skills
+	${CP} -R ${FILESDIR}/skills/. ${STAGEDIR}${EXAMPLESDIR}/skills/
+	${FIND} ${STAGEDIR}${EXAMPLESDIR}/skills -type d | ${SORT} -r | ${SED} "s,^${STAGEDIR},@dir ," >> ${TMPPLIST}
+	${FIND} ${STAGEDIR}${EXAMPLESDIR}/skills -type f | ${SED} "s,^${STAGEDIR},," >> ${TMPPLIST}
+.endif
+
+# TODO(web): the web dashboard is not embedded in this package. Manual path:
+#   cd apps/web && pnpm install && pnpm build
+#   cp -R apps/web/dist apps/cli/internal/web/static/dist
+#   go build -tags embed_web -o taskmd ./cmd/taskmd
+# Port-level automation would need a nodejs prebuild stage (www/node22 builds
+# from source in poudriere; bun has no FreeBSD build).
 
 .include <bsd.port.mk>
